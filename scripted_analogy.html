@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verbal Analogy Task</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --panel: #ffffff;
+      --ink: #1e2328;
+      --muted: #626b73;
+      --line: #d8ddd9;
+      --accent: #176b5d;
+      --accent-dark: #0f4f44;
+      --warn: #9a4f12;
+      --shadow: 0 18px 44px rgba(31, 35, 40, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .screen {
+      width: min(900px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: clamp(24px, 4vw, 44px);
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 3vw, 32px);
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .analogy {
+      margin: 28px 0;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfbf8;
+      text-align: center;
+      font-size: clamp(20px, 3vw, 34px);
+      line-height: 1.15;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 2.8em;
+      border-bottom: 4px solid var(--ink);
+      transform: translateY(-0.08em);
+    }
+
+    label {
+      display: block;
+      margin: 18px 0 8px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #cbd2ce;
+      border-radius: 6px;
+      padding: 14px 16px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    input:focus,
+    textarea:focus,
+    button:focus {
+      outline: 3px solid rgba(23, 107, 93, 0.22);
+      outline-offset: 2px;
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button,
+    .download-link {
+      appearance: none;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    button:hover,
+    .download-link:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+
+    button.secondary,
+    .download-link.secondary {
+      background: #fff;
+      color: var(--accent);
+    }
+
+    button.secondary:hover,
+    .download-link.secondary:hover {
+      background: #eef5f2;
+      color: var(--accent-dark);
+    }
+
+    .warning {
+      min-height: 22px;
+      color: var(--warn);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .summary div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfbf8;
+    }
+
+    .summary strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: 14px;
+      }
+
+      .screen {
+        padding: 22px;
+      }
+
+      .topline {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="screen" id="app" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const stimuli = [
+      { id: 1, a: "answer", b: "riddle", c: "key", answer: "lock", category: "Cross-Domain", norm1: 0.82, norm2: 3.53 },
+      { id: 2, a: "ash", b: "fireplace", c: "lint", answer: "pocket", category: "Cross-Domain", norm1: 0.81, norm2: 3.82 },
+      { id: 3, a: "aspirin", b: "pain", c: "muffler", answer: "noise", category: "Cross-Domain", norm1: 0.89, norm2: 4.55 },
+      { id: 4, a: "baker", b: "cake", c: "scientist", answer: "discovery", category: "Cross-Domain", norm1: 0.92, norm2: 3.14 },
+      { id: 5, a: "basketball", b: "hoop", c: "traveler", answer: "destination", category: "Cross-Domain", norm1: 0.94, norm2: 2.8 },
+      { id: 6, a: "blindness", b: "sight", c: "poverty", answer: "money", category: "Cross-Domain", norm1: 0.88, norm2: 3.97 },
+      { id: 7, a: "blizzard", b: "snowflake", c: "army", answer: "soldier", category: "Cross-Domain", norm1: 0.99, norm2: 3.87 },
+      { id: 8, a: "bracelet", b: "wrist", c: "moat", answer: "castle", category: "Cross-Domain", norm1: 0.88, norm2: 4.23 },
+      { id: 9, a: "burger", b: "bun", c: "book", answer: "cover", category: "Cross-Domain", norm1: 0.92, norm2: 3.47 },
+      { id: 10, a: "eraser", b: "pencil", c: "amnesia", answer: "memory", category: "Cross-Domain", norm1: 0.91, norm2: 2.54 },
+      { id: 11, a: "father", b: "son", c: "inventor", answer: "invention", category: "Cross-Domain", norm1: 0.91, norm2: 3.39 },
+      { id: 12, a: "flock", b: "goose", c: "constellation", answer: "star", category: "Cross-Domain", norm1: 0.96, norm2: 3.73 },
+      { id: 13, a: "foresight", b: "future", c: "x-ray", answer: "bone", category: "Cross-Domain", norm1: 0.98, norm2: 4.54 },
+      { id: 14, a: "foundation", b: "house", c: "premise", answer: "argument", category: "Cross-Domain", norm1: 0.97, norm2: 5.78 },
+      { id: 15, a: "furnace", b: "coal", c: "stomach", answer: "food", category: "Cross-Domain", norm1: 0.91, norm2: 3.77 },
+      { id: 16, a: "hoof", b: "hoofprint", c: "introduction", answer: "impression", category: "Cross-Domain", norm1: 0.91, norm2: 6.04 },
+      { id: 17, a: "immunization", b: "disease", c: "forewarning", answer: "surprise", category: "Cross-Domain", norm1: 0.98, norm2: 5.5 },
+      { id: 18, a: "jacket", b: "zipper", c: "wound", answer: "suture", category: "Cross-Domain", norm1: 0.72, norm2: 3.72 },
+      { id: 19, a: "ketchup", b: "tomato", c: "fuel", answer: "petroleum", category: "Cross-Domain", norm1: 0.98, norm2: 4.52 },
+      { id: 20, a: "kitten", b: "cat", c: "spark", answer: "fire", category: "Cross-Domain", norm1: 0.93, norm2: 3.82 },
+      { id: 21, a: "knee", b: "kneepad", c: "snail", answer: "shell", category: "Cross-Domain", norm1: 0.9, norm2: 2.07 },
+      { id: 22, a: "lambchop", b: "lamb", c: "chapter", answer: "book", category: "Cross-Domain", norm1: 0.95, norm2: 4.28 },
+      { id: 23, a: "landscaper", b: "lawn", c: "stylist", answer: "hair", category: "Cross-Domain", norm1: 0.83, norm2: 3.68 },
+      { id: 24, a: "launchpad", b: "helicopter", c: "divingboard", answer: "diver", category: "Cross-Domain", norm1: 0.83, norm2: 3.98 },
+      { id: 25, a: "lawschool", b: "lawyer", c: "vineyard", answer: "wine", category: "Cross-Domain", norm1: 0.95, norm2: 6.74 },
+      { id: 26, a: "movie", b: "screen", c: "lightning", answer: "sky", category: "Cross-Domain", norm1: 0.89, norm2: 5.44 },
+      { id: 27, a: "multiplication", b: "product", c: "brewing", answer: "beer", category: "Cross-Domain", norm1: 0.9, norm2: 6.94 },
+      { id: 28, a: "nose", b: "scent", c: "antenna", answer: "signal", category: "Cross-Domain", norm1: 0.93, norm2: 4.92 },
+      { id: 29, a: "orchard", b: "apple", c: "neighborhood", answer: "apartment", category: "Cross-Domain", norm1: 0.9, norm2: 6.78 },
+      { id: 30, a: "painting", b: "canvas", c: "birthmark", answer: "skin", category: "Cross-Domain", norm1: 0.97, norm2: 3.85 },
+      { id: 31, a: "pen", b: "pig", c: "reservoir", answer: "water", category: "Cross-Domain", norm1: 0.89, norm2: 5.06 },
+      { id: 32, a: "rectangle", b: "perimeter", c: "nation", answer: "border", category: "Cross-Domain", norm1: 0.97, norm2: 3.73 },
+      { id: 33, a: "revising", b: "manuscript", c: "evolving", answer: "species", category: "Cross-Domain", norm1: 0.98, norm2: 3.4 },
+      { id: 34, a: "saxophone", b: "jazz", c: "typewriter", answer: "poetry", category: "Cross-Domain", norm1: 0.85, norm2: 3.36 },
+      { id: 35, a: "sugar", b: "coffee", c: "incentive", answer: "deal", category: "Cross-Domain", norm1: 0.86, norm2: 6.23 },
+      { id: 36, a: "thermometer", b: "temperature", c: "polygraph", answer: "honesty", category: "Cross-Domain", norm1: 0.99, norm2: 3.73 },
+      { id: 37, a: "train", b: "track", c: "signal", answer: "wire", category: "Cross-Domain", norm1: 0.86, norm2: 4.6 },
+      { id: 38, a: "watermelon", b: "rind", c: "cigarette", answer: "butt", category: "Cross-Domain", norm1: 0.99, norm2: 4.21 }
+    ];
+
+    const app = document.querySelector("#app");
+    const state = {
+      participantId: "",
+      condition: "",
+      startedAt: "",
+      order: [],
+      current: 0,
+      phaseStart: 0,
+      pendingTrial: null,
+      data: []
+    };
+
+    function html(strings, ...values) {
+      return strings.reduce((out, str, i) => out + str + (values[i] ?? ""), "");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function topLine(label = "") {
+      return html`
+        <div class="topline">
+          <span>${escapeHtml(label)}</span>
+        </div>
+      `;
+    }
+
+    function setScreen(markup, focusSelector) {
+      app.innerHTML = markup;
+      if (focusSelector) {
+        const target = app.querySelector(focusSelector);
+        if (target) target.focus();
+      }
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function showStart() {
+      setScreen(html`
+        ${topLine("Participant")}
+        <h1>Participant ID</h1>
+        <input id="participantId" autocomplete="off" placeholder="Enter participant ID">
+        <div class="actions">
+          <button id="begin">Continue</button>
+        </div>
+        <div class="warning" id="warning"></div>
+      `, "#participantId");
+
+      app.querySelector("#begin").addEventListener("click", () => {
+        const participantId = app.querySelector("#participantId").value.trim();
+        if (!participantId) {
+          app.querySelector("#warning").textContent = "Please enter a participant ID.";
+          app.querySelector("#participantId").focus();
+          return;
+        }
+        state.participantId = participantId;
+        state.condition = "";
+        state.startedAt = nowIso();
+        //state.order = stimuli.slice(0, 1);
+        state.order = stimuli;
+        showInstructions();
+      });
+    }
+
+    function showInstructions() {
+      setScreen(html`
+        ${topLine("Instructions")}
+        <h2>Instructions</h2>
+        <p>In this task, you are going to complete some fill-in-blank analogy problems in the format of <span class="nowrap">A:B :: C: __.</span></p>
+        <p>You will see analogy problems like this:</p>
+        <div class="analogy">puppy : dog :: calf : <span class="blank"></span></div>
+        <p>Type the word that best completes the analogy. Then explain your answer.</p>
+        <p class="muted">There are 38 test items after the practice item.</p>
+        <div class="actions">
+          <button id="practice">Start practice</button>
+        </div>
+      `);
+      app.querySelector("#practice").addEventListener("click", showPracticeAnswer);
+    }
+
+    function showPracticeAnswer() {
+      state.phaseStart = performance.now();
+      setScreen(html`
+        ${topLine("Practice")}
+        <h2>Practice</h2>
+        <div class="analogy">puppy : dog :: calf : <span class="blank"></span></div>
+        <label for="practiceAnswer">Your answer</label>
+        <input id="practiceAnswer" autocomplete="off">
+        <label for="practiceExplanation">Explain your answer</label>
+        <textarea id="practiceExplanation"></textarea>
+        <div class="actions">
+          <button id="startTrials">Start task</button>
+        </div>
+        <div class="warning" id="warning"></div>
+      `, "#practiceAnswer");
+
+      app.querySelector("#startTrials").addEventListener("click", () => {
+        if (!app.querySelector("#practiceAnswer").value.trim()) {
+          app.querySelector("#warning").textContent = "Please type an answer before continuing.";
+          return;
+        }
+        if (!app.querySelector("#practiceExplanation").value.trim()) {
+          app.querySelector("#warning").textContent = "Please explain your answer before continuing.";
+          return;
+        }
+        state.current = 0;
+        showTrialAnswer();
+      });
+    }
+
+    function showTrialAnswer() {
+      const trial = state.order[state.current];
+      const label = `Item ${state.current + 1}`;
+      state.phaseStart = performance.now();
+      state.pendingTrial = {
+        participant_id: state.participantId,
+        condition: state.condition,
+        experiment_started_at: state.startedAt,
+        trial_started_at: nowIso(),
+        trial_index: state.current + 1,
+        stimulus_id: trial.id,
+        a: trial.a,
+        b: trial.b,
+        c: trial.c,
+        correct_answer: trial.answer,
+        category: trial.category,
+        norm1: trial.norm1,
+        norm2: trial.norm2
+      };
+
+      setScreen(html`
+        ${topLine(label)}
+        <h2>Complete the analogy</h2>
+        <div class="analogy">${escapeHtml(trial.a)} : ${escapeHtml(trial.b)} :: ${escapeHtml(trial.c)} : <span class="blank"></span></div>
+        <label for="answer">Your answer</label>
+        <input id="answer" autocomplete="off" autocapitalize="none">
+        <label for="explanation">Explain your answer</label>
+        <textarea id="explanation"></textarea>
+        <div class="actions">
+          <button id="continue">Continue</button>
+        </div>
+        <div class="warning" id="warning"></div>
+      `, "#answer");
+
+      app.querySelector("#answer").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") app.querySelector("#continue").click();
+      });
+      app.querySelector("#continue").addEventListener("click", () => {
+        const response = app.querySelector("#answer").value.trim();
+        if (!response) {
+          app.querySelector("#warning").textContent = "Please type an answer before continuing.";
+          return;
+        }
+        state.pendingTrial.response = response;
+        const explanation = app.querySelector("#explanation").value.trim();
+        if (!explanation) {
+          app.querySelector("#warning").textContent = "Please explain your answer before continuing.";
+          return;
+        }
+        state.pendingTrial.answer_rt_ms = Math.round(performance.now() - state.phaseStart);
+        state.pendingTrial.correct = normalize(response) === normalize(trial.answer);
+        state.pendingTrial.explanation = explanation;
+        state.pendingTrial.explanation_rt_ms = "";
+        state.pendingTrial.trial_completed_at = nowIso();
+        state.data.push(state.pendingTrial);
+        state.pendingTrial = null;
+        state.current += 1;
+        saveProgress();
+        if (state.current < state.order.length) {
+          showTrialAnswer();
+        } else {
+          showFinish();
+        }
+      });
+    }
+
+    function normalize(value) {
+      return String(value).trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+    }
+
+    function saveProgress() {
+      localStorage.setItem("verbalAnalogyTaskLastRun", JSON.stringify({
+        saved_at: nowIso(),
+        participant_id: state.participantId,
+        condition: state.condition,
+        experiment_started_at: state.startedAt,
+        data: state.data
+      }));
+    }
+
+    function csvEscape(value) {
+      if (value === null || value === undefined) return "";
+      const text = String(value);
+      if (/[",\n\r]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+      return text;
+    }
+
+    function toCsv(rows) {
+      const headers = [
+        "participant_id", "condition", "experiment_started_at", "trial_started_at",
+        "trial_completed_at", "trial_index", "stimulus_id", "a", "b", "c",
+        "correct_answer", "response", "correct", "explanation", "answer_rt_ms",
+        "explanation_rt_ms", "category", "norm1", "norm2"
+      ];
+      const lines = [headers.join(",")];
+      rows.forEach((row) => {
+        lines.push(headers.map((header) => csvEscape(row[header])).join(","));
+      });
+      return lines.join("\n");
+    }
+
+    function downloadUrl(content, type) {
+      return URL.createObjectURL(new Blob([content], { type }));
+    }
+
+    function showFinish() {
+      saveProgress();
+      const csv = toCsv(state.data);
+      const safeId = state.participantId.replace(/[^a-z0-9_-]/gi, "_") || "participant";
+      const csvName = `analogy_task_${safeId}_${Date.now()}.csv`;
+
+      setScreen(html`
+        ${topLine("Complete")}
+        <h2>Task complete</h2>
+        <p>Thank you for your participation! Now your data will be automatically downloaded. Please do not block the download.</p>
+        <div class="actions">
+          <a class="download-link" id="csvDownload" download="${escapeHtml(csvName)}">Download CSV</a>
+        </div>
+      `);
+
+      app.querySelector("#csvDownload").href = downloadUrl(csv, "text/csv");
+      app.querySelector("#csvDownload").click();
+      window.setTimeout(() => {
+        app.innerHTML = "";
+      }, 30000);
+    }
+
+    showStart();
+  </script>
+</body>
+</html>
