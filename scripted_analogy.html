@@ -266,7 +266,7 @@
       { id: 35, a: "sugar", b: "coffee", c: "incentive", answer: "deal", category: "Cross-Domain", norm1: 0.86, norm2: 6.23 },
       { id: 36, a: "thermometer", b: "temperature", c: "polygraph", answer: "honesty", category: "Cross-Domain", norm1: 0.99, norm2: 3.73 },
       { id: 37, a: "train", b: "track", c: "signal", answer: "wire", category: "Cross-Domain", norm1: 0.86, norm2: 4.6 },
-      { id: 38, a: "watermelon", b: "rind", c: "cigarette", answer: "butt", category: "Cross-Domain", norm1: 0.99, norm2: 4.21 }
+      
     ];
 
     const app = document.querySelector("#app");
@@ -349,7 +349,7 @@
         <p>You will see analogy problems like this:</p>
         <div class="analogy">puppy : dog :: calf : <span class="blank"></span></div>
         <p>Type the word that best completes the analogy. Then explain your answer.</p>
-        <p class="muted">There are 38 test items after the practice item.</p>
+        <p class="muted">There are 37 test items after the practice item.</p>
         <div class="actions">
           <button id="practice">Start practice</button>
         </div>
@@ -496,7 +496,7 @@
       saveProgress();
       const csv = toCsv(state.data);
       const safeId = state.participantId.replace(/[^a-z0-9_-]/gi, "_") || "participant";
-      const csvName = `analogy_task_${safeId}_${Date.now()}.csv`;
+      const csvName = `S${safeId}_part1_con2__scripted${Date.now()}.csv`;
 
       setScreen(html`
         ${topLine("Complete")}
